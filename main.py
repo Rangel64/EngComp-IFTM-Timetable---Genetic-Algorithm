@@ -1,12 +1,10 @@
 import numpy as np
 import random
 
-# Parâmetros do algoritmo genético
 populacao_size = 1000
 generations = 30000
 mutation_rate = 0.01
 
-# Definição das disciplinas por turma e quantidade de aulas
 turmas_disciplinas = [
     ["Algoritmos e Programação", "Cálculo Diferencial e Integral I", "Eletricidade Experimental", 
      "Geometria Analítica", "Introdução à Engenharia", "Introdução à Lógica Matemática", 
@@ -188,7 +186,6 @@ professores_disciplinas = {
 }
 
 
-# Função para criar um cromossomo
 def create_cromossomo():
     cromossomo = np.zeros((9, 5, 12), dtype=object)
     for turma_index, disciplinas in enumerate(turmas_disciplinas):
@@ -202,57 +199,6 @@ def create_cromossomo():
                     aulas_restantes -= 1
     return cromossomo
 
-# def fitness(cromossomo, quantidade_de_aulas):
-#     score = 0
-#     for turma_index in range(9):
-#         aulas_por_disciplina = {disciplina: 0 for disciplina in quantidade_de_aulas.keys()}
-#         for dia in range(5):
-#             dia_aulas = cromossomo[turma_index, dia, :]
-#             disciplinas = [disc for disc in dia_aulas if disc != 0]
-#             unique_disciplinas = set(disciplinas)
-
-#             # Bonificar horários agrupados da mesma disciplina
-#             for disciplina in unique_disciplinas:
-#                 contagem = 0
-#                 max_contagem = 0
-#                 for aula in dia_aulas:
-#                     if aula == disciplina:
-#                         contagem += 1
-#                     else:
-#                         if contagem > max_contagem:
-#                             max_contagem = contagem
-#                         contagem = 0
-#                 if contagem > max_contagem:
-#                     max_contagem = contagem
-#                 score += max_contagem  # Bonificação por agrupamento
-
-#                 # Atualizar contagem de aulas por disciplina
-#                 aulas_por_disciplina[disciplina] += dia_aulas.tolist().count(disciplina)
-
-#             # Penalizar horários vagos entre as aulas
-#             aula_encontrada = False
-#             for i in range(6):
-#                 if dia_aulas[i] != 0:
-#                     aula_encontrada = True
-#                 elif aula_encontrada and dia_aulas[i] == 0:
-#                     if any(dia_aulas[j] != 0 for j in range(i + 1, 6)):
-#                         score -= 5  # Penalidade por horário vago entre as aulas
-
-#             # Bonificar aulas de manhã/tarde de acordo com o índice da turma
-#             for i in range(6):
-#                 if turma_index % 2 == 0:  # Turmas com índice par
-#                     if dia_aulas[i] != 0 and i >= 6:
-#                         score += 10  # Bonificação para aulas à tarde
-#                 else:  # Turmas com índice ímpar
-#                     if dia_aulas[i] != 0 and i < 6:
-#                         score += 10  # Bonificação para aulas de manhã
-
-#         # Penalizar se o número de aulas de uma disciplina ultrapassar o limite semanal
-#         for disciplina, aulas in aulas_por_disciplina.items():
-#             if aulas > quantidade_de_aulas[disciplina]:
-#                 score -= (aulas - quantidade_de_aulas[disciplina]) * 10  # Penalidade
-
-#     return score
 
 def fitness(cromossomo, quantidade_de_aulas, professores_disciplinas):
     score = 0
@@ -316,12 +262,7 @@ def fitness(cromossomo, quantidade_de_aulas, professores_disciplinas):
 
     return score
 
-# Seleção
-# def selecao(populacao):
-#     populacao.sort(key=lambda x: x[1], reverse=True)
-#     return populacao[:populacao_size]
 
-# Cruzamento
 def crossover(cromossomo1, cromossomo2):
     ponto_corte = random.randint(0, cromossomo1.size - 1)
     flat_cromo1 = cromossomo1.flatten()
@@ -330,7 +271,6 @@ def crossover(cromossomo1, cromossomo2):
     child2 = np.concatenate((flat_cromo2[:ponto_corte], flat_cromo1[ponto_corte:])).reshape(cromossomo1.shape)
     return child1, child2
 
-# Mutação
 def mutacao(cromossomo):
     if random.random() < mutation_rate:
         turma_index = random.randint(0, 8)
@@ -351,7 +291,6 @@ def tournament_selection(population, tournament_size=3):
     
     return parents
 
-# Inicializando a população
 populacao = [(create_cromossomo(), 0) for _ in range(populacao_size)]
 
 for generation in range(generations):
@@ -370,12 +309,10 @@ for generation in range(generations):
    
     evaluated_population = [(cromossomo, fitness(cromossomo,quantidade_de_aulas,professores_disciplinas)) for cromossomo,_ in populacao]
 
-    # Melhor solução
     best_solution = sorted(evaluated_population, key=lambda x: x[1], reverse=True)[0]
     
     print(f'Generation {generation}: Fitness = {best_solution[1]}')
     
-# Melhor solução encontrada
 melhor_cromossomo, melhor_fitness = max(populacao, key=lambda x: x[1])
 print("Melhor fitness:", melhor_fitness)
 print("Melhor grade horária:", melhor_cromossomo)
